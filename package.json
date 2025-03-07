@@ -1,7 +1,7 @@
 {
   "name": "duck-ai-api",
   "version": "0.0.0",
-  "description": "A wrapper around GitHub DuckDuckGo AI API to make it OpenAI compatible, making it usable for other tools.",
+  "description": "A wrapper around DuckDuckGo AI API to make it OpenAI compatible, making it usable for other tools.",
   "keywords": [
     "proxy",
     "duckduckgo",
