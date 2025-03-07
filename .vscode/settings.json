@@ -1,0 +1,11 @@
+{
+  "cSpell.words": [
+    "corsify",
+    "xqvd"
+  ],
+  "deno.enable": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "copilot-api",
+  "version": "0.0.14",
+  "description": "A wrapper around GitHub Copilot API to make it OpenAI compatible, making it usable for other tools.",
+  "keywords": [
+    "proxy",
+    "github-copilot",
+    "openai-compatible"
+  ],
+  "homepage": "https://github.com/ericc-ch/copilot-api",
+  "bugs": "https://github.com/ericc-ch/copilot-api/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ericc-ch/copilot-api.git"
+  },
+  "author": "Erick Christian <erickchristian48@gmail.com>",
+  "type": "module",
+  "bin": {
+    "copilot-api": "./dist/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "bun run --watch ./src/main.ts",
+    "knip": "knip-bun",
+    "lint": "eslint .",
+    "prepack": "bun run build",
+    "prepare": "simple-git-hooks",
+    "release": "bumpp && bun publish --access public",
+    "start": "NODE_ENV=production bun run ./src/main.ts",
+    "test": "vitest"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "bunx lint-staged"
+  },
+  "lint-staged": {
+    "*": "bunx eslint --fix"
+  },
+  "dependencies": {
+    "citty": "^0.1.6",
+    "consola": "^3.4.0",
+    "fetch-event-stream": "^0.1.5",
+    "get-port-please": "^3.1.2",
+    "hono": "^4.7.4",
+    "itty-router": "^5.0.18",
+    "ofetch": "^1.4.1",
+    "pathe": "^2.0.3",
+    "srvx": "^0.1.4",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@echristian/eslint-config": "^0.0.30",
+    "@types/bun": "^1.2.4",
+    "bumpp": "^10.0.3",
+    "eslint": "^9.21.0",
+    "knip": "^5.45.0",
+    "lint-staged": "^15.4.3",
+    "simple-git-hooks": "^2.11.1",
+    "tinyexec": "^0.3.2",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2"
+  }
+}
