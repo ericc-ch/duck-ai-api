@@ -3,7 +3,6 @@
 import { defineCommand, runMain } from "citty"
 import consola from "consola"
 import { serve, type ServerHandler } from "srvx"
-import { Agent, setGlobalDispatcher } from "undici"
 
 import { state } from "./lib/state"
 import { server } from "./server"
@@ -12,7 +11,6 @@ import { getStatus } from "./services/status/service"
 interface RunServerOptions {
   port: number
   verbose: boolean
-  allowInsecure: boolean
 }
 
 export async function runServer(options: RunServerOptions): Promise<void> {
@@ -20,15 +18,6 @@ export async function runServer(options: RunServerOptions): Promise<void> {
     consola.level = 5
     consola.info("Verbose logging enabled")
   }
-
-  if (options.allowInsecure)
-    setGlobalDispatcher(
-      new Agent({
-        connect: {
-          rejectUnauthorized: false,
-        },
-      }),
-    )
 
   const { headers } = await getStatus()
   const xqvd4 = headers.get("x-vqd-4")
@@ -60,11 +49,6 @@ const main = defineCommand({
       default: false,
       description: "Enable verbose logging",
     },
-    "allow-insecure": {
-      type: "boolean",
-      default: false,
-      description: "Allow insecure connections",
-    },
   },
   run({ args }) {
     const port = Number.parseInt(args.port, 10)
@@ -72,7 +56,6 @@ const main = defineCommand({
     return runServer({
       port,
       verbose: args.verbose,
-      allowInsecure: args["allow-insecure"],
     })
   },
 })
