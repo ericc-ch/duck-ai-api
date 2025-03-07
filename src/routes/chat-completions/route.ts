@@ -24,19 +24,12 @@ interface HandlerOptions {
   stream: Awaited<ReturnType<typeof chatCompletion>>["stream"]
 }
 
-const handleStreaming = async (options: HandlerOptions) => {
-  consola.log("Handling streaming with SSE for", options.payload)
-
-  for await (const message of options.stream) {
-    consola.log(message)
-  }
-
+const handleStreaming = (options: HandlerOptions) => {
   return streamSSE(options.c, async (stream) => {
     const completionId = globalThis.crypto.randomUUID()
     let prevChunk: ExpectedCompletionChunk | undefined
 
     for await (const message of options.stream) {
-      consola.log(message)
       if (message.data === undefined) continue
 
       const data = JSON.parse(message.data) as ChatCompletionChunk
@@ -80,7 +73,6 @@ const handleStreaming = async (options: HandlerOptions) => {
       }
 
       prevChunk = expectedChunk
-      consola.log(expectedChunk)
     }
   })
 }
@@ -135,7 +127,11 @@ completionRoutes.post("/", async (c) => {
 
     const xqvd4 = response.headers.get("x-vqd-4")
     if (!xqvd4) {
-      consola.log("x-vqd-4 header not found", response.headers, response.stream)
+      consola.error(
+        "x-vqd-4 header not found",
+        response.headers,
+        response.stream,
+      )
       throw new Error("x-vqd-4 header not found")
     }
     // This is meant to be run locally, by a single user
@@ -143,10 +139,8 @@ completionRoutes.post("/", async (c) => {
     // eslint-disable-next-line require-atomic-updates
     state["x-vqd-4"] = xqvd4
 
-    consola.log("Received response:", response)
-
     if (payload.stream) {
-      return await handleStreaming({
+      return handleStreaming({
         c,
         payload: duckPayload,
         stream: response.stream,

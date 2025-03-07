@@ -23,7 +23,7 @@ export async function runServer(options: RunServerOptions): Promise<void> {
   const xqvd4 = headers.get("x-vqd-4")
 
   if (!xqvd4) {
-    consola.log("x-vqd-4 header not found", headers, response)
+    consola.error("x-vqd-4 header not found", headers, response)
     throw new Error("x-vqd-4 header not found")
   }
 
