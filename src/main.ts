@@ -44,7 +44,7 @@ const main = defineCommand({
     port: {
       alias: "p",
       type: "string",
-      default: "4142",
+      default: "4460",
       description: "Port to listen on",
     },
     verbose: {
