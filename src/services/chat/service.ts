@@ -1,5 +1,7 @@
 import { events } from "fetch-event-stream"
 
+import type { ModelId } from "~/lib/models"
+
 import { BASE_URL } from "~/lib/constants"
 
 export async function chatCompletion(
@@ -22,7 +24,7 @@ export async function chatCompletion(
 }
 
 export interface ChatCompletionPayload {
-  model: "claude-3-haiku-20240307"
+  model: ModelId
   messages: Array<{
     role: "user" | "assistant"
     content: string
@@ -33,12 +35,14 @@ export interface ChatCompletionOptions {
   "x-vqd-4": string
 }
 
-export interface ChatCompletionChunk {
-  role: "assistant"
-  message: string
-  /**
-   * Unix timestamp
-   */
-  created: number
-  action: "success"
-}
+export type ChatCompletionChunk =
+  | {
+      role: "assistant"
+      message: string
+      /**
+       * Unix timestamp
+       */
+      created: number
+      action: "success"
+    }
+  | "[DONE]"
