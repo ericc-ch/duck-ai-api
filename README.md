@@ -67,13 +67,13 @@ bun install
 You can run the project directly using npx:
 
 ```sh
-npx copilot-api@latest
+npx duck-ai-api@latest
 ```
 
 With options:
 
 ```sh
-npx copilot-api --port 8080
+npx duck-ai-api --port 8080
 ```
 
 ## Running from Source

@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "copilot-api",
+      "name": "duck-ai-api",
       "dependencies": {
         "citty": "^0.1.6",
         "consola": "^3.4.0",

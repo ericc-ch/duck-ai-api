@@ -1,22 +1,22 @@
 {
-  "name": "copilot-api",
-  "version": "0.0.14",
+  "name": "duck-ai-api",
+  "version": "0.0.0",
   "description": "A wrapper around GitHub Copilot API to make it OpenAI compatible, making it usable for other tools.",
   "keywords": [
     "proxy",
-    "github-copilot",
+    "duckduckgo",
     "openai-compatible"
   ],
-  "homepage": "https://github.com/ericc-ch/copilot-api",
-  "bugs": "https://github.com/ericc-ch/copilot-api/issues",
+  "homepage": "https://github.com/ericc-ch/duck-ai-api",
+  "bugs": "https://github.com/ericc-ch/duck-ai-api/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ericc-ch/copilot-api.git"
+    "url": "git+https://github.com/ericc-ch/duck-ai-api.git"
   },
   "author": "Erick Christian <erickchristian48@gmail.com>",
   "type": "module",
   "bin": {
-    "copilot-api": "./dist/main.js"
+    "duck-ai-api": "./dist/main.js"
   },
   "files": [
     "dist"
