@@ -24,12 +24,19 @@ interface HandlerOptions {
   response: Awaited<ReturnType<typeof chatCompletion>>["response"]
 }
 
-const handleStreaming = (options: HandlerOptions) => {
+const handleStreaming = async (options: HandlerOptions) => {
+  consola.log("Handling streaming with SSE for", options.payload)
+
+  for await (const message of options.response) {
+    consola.log(message)
+  }
+
   return streamSSE(options.c, async (stream) => {
     const completionId = globalThis.crypto.randomUUID()
     let prevChunk: ExpectedCompletionChunk | undefined
 
     for await (const message of options.response) {
+      consola.log(message)
       if (message.data === undefined) continue
 
       const data = JSON.parse(message.data) as ChatCompletionChunk
@@ -73,6 +80,7 @@ const handleStreaming = (options: HandlerOptions) => {
       }
 
       prevChunk = expectedChunk
+      consola.log(expectedChunk)
     }
   })
 }
@@ -125,8 +133,10 @@ completionRoutes.post("/", async (c) => {
       "x-vqd-4": state["x-vqd-4"],
     })
 
+    consola.log("Received response:", response)
+
     if (payload.stream) {
-      return handleStreaming({
+      return await handleStreaming({
         c,
         payload: duckPayload,
         response: response.response,

@@ -1,3 +1,4 @@
+import consola from "consola"
 import { events } from "fetch-event-stream"
 
 import type { ModelId } from "~/lib/models"
@@ -16,6 +17,18 @@ export async function chatCompletion(
     },
     body: JSON.stringify(payload),
   })
+
+  const reader = response.body?.getReader()
+
+  if (!reader) throw new Error("No reader")
+
+  while (true) {
+    consola.log("Reading")
+    const { done, value } = await reader.read()
+    if (done) break
+
+    consola.log(value)
+  }
 
   return {
     headers: response.headers,
