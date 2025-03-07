@@ -54,14 +54,12 @@ export interface ChatCompletionOptions {
   "x-vqd-4": string
 }
 
-export type ChatCompletionChunk =
-  | {
-      role: "assistant"
-      message: string
-      /**
-       * Unix timestamp
-       */
-      created: number
-      action: "success"
-    }
-  | "[DONE]"
+export type ChatCompletionChunk = {
+  role: "assistant"
+  message: string
+  /**
+   * Unix timestamp
+   */
+  created: number
+  action: "success"
+}

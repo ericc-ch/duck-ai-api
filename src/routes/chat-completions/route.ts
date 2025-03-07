@@ -3,12 +3,13 @@ import { Hono, type Context } from "hono"
 import { streamSSE, type SSEMessage } from "hono/streaming"
 
 import { getModelId, type ModelName } from "~/lib/models"
-import { state } from "~/lib/state"
+import { buildPrompt } from "~/lib/prompt"
 import {
   chatCompletion,
   type ChatCompletionChunk,
   type ChatCompletionPayload,
 } from "~/services/chat/service"
+import { getXqvd4 } from "~/services/status/service"
 
 import type {
   ExpectedChatCompletionPayload,
@@ -32,9 +33,7 @@ const handleStreaming = (options: HandlerOptions) => {
     for await (const message of options.stream) {
       if (message.data === undefined) continue
 
-      const data = JSON.parse(message.data) as ChatCompletionChunk
-
-      if (data === "[DONE]") {
+      if (message.data === "[DONE]") {
         if (prevChunk !== undefined) {
           prevChunk.choices[0].finish_reason = "stop"
 
@@ -45,14 +44,17 @@ const handleStreaming = (options: HandlerOptions) => {
         }
 
         await stream.writeSSE(message as SSEMessage)
-        return
+        continue
       }
 
-      if (prevChunk !== undefined)
+      const data = JSON.parse(message.data) as ChatCompletionChunk
+
+      if (prevChunk !== undefined) {
         await stream.writeSSE({
           event: "chat.completion.chunk",
           data: JSON.stringify(prevChunk),
         })
+      }
 
       const expectedChunk: ExpectedCompletionChunk = {
         id: completionId,
@@ -66,13 +68,16 @@ const handleStreaming = (options: HandlerOptions) => {
               content: data.message,
               role: data.role,
             },
-            finish_reason: null, // can be "stop" when the stream ends, just before [DONE]
+            // can be "stop" when the stream ends, just before [DONE]
+            finish_reason: null,
             logprobs: null,
           },
         ],
       }
 
       prevChunk = expectedChunk
+
+      await stream.sleep(100)
     }
   })
 }
@@ -98,10 +103,9 @@ const handleNonStreaming = async (options: HandlerOptions) => {
 
   for await (const message of options.stream) {
     if (message.data === undefined) continue
+    if (message.data === "[DONE]") break
 
     const data = JSON.parse(message.data) as ChatCompletionChunk
-
-    if (data === "[DONE]") break
 
     expectedResponse.choices[0].message.content += data.message
   }
@@ -116,28 +120,18 @@ completionRoutes.post("/", async (c) => {
 
     const duckPayload: ChatCompletionPayload = {
       model: modelId,
-      messages: payload.messages,
+      messages: [
+        {
+          role: "user",
+          content: buildPrompt(payload.messages),
+        },
+      ],
     }
 
-    if (!state["x-vqd-4"]) throw new Error("x-vqd-4 header not found")
-
+    const xqvd4 = await getXqvd4()
     const response = await chatCompletion(duckPayload, {
-      "x-vqd-4": state["x-vqd-4"],
+      "x-vqd-4": xqvd4,
     })
-
-    const xqvd4 = response.headers.get("x-vqd-4")
-    if (!xqvd4) {
-      consola.error(
-        "x-vqd-4 header not found",
-        response.headers,
-        response.stream,
-      )
-      throw new Error("x-vqd-4 header not found")
-    }
-    // This is meant to be run locally, by a single user
-    // So updating the state like this is fine
-    // eslint-disable-next-line require-atomic-updates
-    state["x-vqd-4"] = xqvd4
 
     if (payload.stream) {
       return handleStreaming({

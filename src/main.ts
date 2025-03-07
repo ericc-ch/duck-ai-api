@@ -4,31 +4,18 @@ import { defineCommand, runMain } from "citty"
 import consola from "consola"
 import { serve, type ServerHandler } from "srvx"
 
-import { state } from "./lib/state"
 import { server } from "./server"
-import { getStatus } from "./services/status/service"
 
 interface RunServerOptions {
   port: number
   verbose: boolean
 }
 
-export async function runServer(options: RunServerOptions): Promise<void> {
+export function runServer(options: RunServerOptions) {
   if (options.verbose) {
     consola.level = 5
     consola.info("Verbose logging enabled")
   }
-
-  const { headers, response } = await getStatus()
-  const xqvd4 = headers.get("x-vqd-4")
-
-  if (!xqvd4) {
-    consola.error("x-vqd-4 header not found", headers, response)
-    throw new Error("x-vqd-4 header not found")
-  }
-
-  state["x-vqd-4"] = xqvd4
-  consola.success("Fetched initial state", state)
 
   const serverUrl = `http://localhost:${options.port}`
   consola.box(`Server started at ${serverUrl}`)
@@ -57,7 +44,7 @@ const main = defineCommand({
   run({ args }) {
     const port = Number.parseInt(args.port, 10)
 
-    return runServer({
+    runServer({
       port,
       verbose: args.verbose,
     })

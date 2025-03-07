@@ -1,7 +1,7 @@
 // https://platform.openai.com/docs/api-reference
 
-interface Message {
-  role: "user" | "assistant"
+export interface Message {
+  role: "user" | "assistant" | "system"
   content: string
 }
 
