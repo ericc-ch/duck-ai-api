@@ -172,21 +172,6 @@ function generateRandomSecChUAHeaders(): Record<string, string> {
 
 function generateRandomAcceptHeaders(): Record<string, string> {
   const headers: Record<string, string> = {}
-  const acceptTypes = [
-    "text/html",
-    "application/xhtml+xml",
-    "application/xml",
-    "*/*",
-    "text/event-stream",
-    "application/json",
-    "image/webp",
-    "image/apng",
-  ]
-  const randomAcceptTypes = acceptTypes
-    .sort(() => Math.random() - 0.5)
-    .slice(0, Math.floor(Math.random() * acceptTypes.length) + 1)
-    .join(",")
-  headers["Accept"] = randomAcceptTypes
 
   const acceptLanguageValues = LANGUAGES.map((lang) => {
     const q = (Math.random() * (1 - 0.1) + 0.1).toFixed(1)
@@ -308,3 +293,21 @@ export const createCookie = (record: Record<string, string>) => {
 // Random 1-10 integer, I don't know what the correct values are
 export const randomDcs = () => Math.round(Math.random() * 10).toString()
 export const randomDcm = () => Math.round(Math.random() * 8).toString()
+
+export const STATIC_HEADERS = {
+  Host: "duckduckgo.com",
+  "User-Agent":
+    "Mozilla/5.0 (X11; Linux x86_64; rv:136.0) Gecko/20100101 Firefox/136.0",
+  "Accept-Language": "en-US,en;q=0.5",
+  "Accept-Encoding": "gzip, deflate, br, zstd",
+  Referer: "https://duckduckgo.com/",
+  Origin: "https://duckduckgo.com/",
+  DNT: "1",
+  "Sec-GPC": "1",
+  Connection: "keep-alive",
+  "Sec-Fetch-Dest": "empty",
+  "Sec-Fetch-Mode": "cors",
+  "Sec-Fetch-Site": "same-origin",
+  Priority: "u=4",
+  TE: "trailers",
+}

@@ -4,20 +4,22 @@ import { events } from "fetch-event-stream"
 import type { ModelId } from "~/lib/models"
 
 import { BASE_URL } from "~/lib/constants"
-import { createCookie, generateRandomHeaders, randomDcm } from "~/lib/headers"
+import { createCookie } from "~/lib/headers"
+import { state } from "~/lib/state"
 
 export async function chatCompletion(
   payload: ChatCompletionPayload,
   options: ChatCompletionOptions,
 ) {
-  consola.log("Sending chat completion request", payload, options)
-
   const headers = {
-    ...generateRandomHeaders(),
+    ...state.headers,
     accept: "text/event-stream",
-    "x-vqd-4": options["x-vqd-4"],
     "content-type": "application/json",
-    cookie: createCookie({ dcs: "1", dcm: randomDcm() }),
+    "x-vqd-4": options["x-vqd-4"],
+    cookie: createCookie({
+      dcs: state.dcs,
+      dcm: state.dcm,
+    }),
   }
 
   const response = await fetch(`${BASE_URL}/chat`, {
