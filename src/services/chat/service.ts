@@ -4,7 +4,7 @@ import { events } from "fetch-event-stream"
 import type { ModelId } from "~/lib/models"
 
 import { BASE_URL } from "~/lib/constants"
-import { createCookie, randomDcm, randomDcs } from "~/lib/cookie"
+import { createCookie, generateRandomHeaders, randomDcm } from "~/lib/headers"
 
 export async function chatCompletion(
   payload: ChatCompletionPayload,
@@ -12,21 +12,25 @@ export async function chatCompletion(
 ) {
   consola.log("Sending chat completion request", payload, options)
 
+  const headers = {
+    ...generateRandomHeaders(),
+    accept: "text/event-stream",
+    "x-vqd-4": options["x-vqd-4"],
+    "content-type": "application/json",
+    cookie: createCookie({ dcs: "1", dcm: randomDcm() }),
+  }
+
   const response = await fetch(`${BASE_URL}/chat`, {
     method: "POST",
-    headers: {
-      accept: "text/event-stream",
-      "x-vqd-4": options["x-vqd-4"],
-      "content-type": "application/json",
-      cookie: createCookie({ dcs: randomDcs(), dcm: randomDcm() }),
-    },
+    headers,
     body: JSON.stringify(payload),
   })
 
   if (!response.ok) {
     const json = (await response.json()) as unknown
 
-    consola.error("Chat completion failed", json)
+    consola.error("Chat completion failed:", response.headers, json)
+    consola.error("Failed payload:", headers, payload)
     throw new Error(JSON.stringify(json))
   }
 
