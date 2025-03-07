@@ -4,35 +4,35 @@ import { events } from "fetch-event-stream"
 import type { ModelId } from "~/lib/models"
 
 import { BASE_URL } from "~/lib/constants"
+import { createCookie, randomDcm, randomDcs } from "~/lib/cookie"
 
 export async function chatCompletion(
   payload: ChatCompletionPayload,
   options: ChatCompletionOptions,
 ) {
+  consola.log("Sending chat completion request", payload, options)
+
   const response = await fetch(`${BASE_URL}/chat`, {
     method: "POST",
     headers: {
       accept: "text/event-stream",
       "x-vqd-4": options["x-vqd-4"],
+      "content-type": "application/json",
+      cookie: createCookie({ dcs: randomDcs(), dcm: randomDcm() }),
     },
     body: JSON.stringify(payload),
   })
 
-  const reader = response.body?.getReader()
+  if (!response.ok) {
+    const json = (await response.json()) as unknown
 
-  if (!reader) throw new Error("No reader")
-
-  while (true) {
-    consola.log("Reading")
-    const { done, value } = await reader.read()
-    if (done) break
-
-    consola.log(value)
+    consola.error("Chat completion failed", json)
+    throw new Error(JSON.stringify(json))
   }
 
   return {
     headers: response.headers,
-    response: events(response),
+    stream: events(response),
   }
 }
 

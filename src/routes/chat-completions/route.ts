@@ -21,13 +21,13 @@ export const completionRoutes = new Hono()
 interface HandlerOptions {
   c: Context
   payload: ChatCompletionPayload
-  response: Awaited<ReturnType<typeof chatCompletion>>["response"]
+  stream: Awaited<ReturnType<typeof chatCompletion>>["stream"]
 }
 
 const handleStreaming = async (options: HandlerOptions) => {
   consola.log("Handling streaming with SSE for", options.payload)
 
-  for await (const message of options.response) {
+  for await (const message of options.stream) {
     consola.log(message)
   }
 
@@ -35,7 +35,7 @@ const handleStreaming = async (options: HandlerOptions) => {
     const completionId = globalThis.crypto.randomUUID()
     let prevChunk: ExpectedCompletionChunk | undefined
 
-    for await (const message of options.response) {
+    for await (const message of options.stream) {
       consola.log(message)
       if (message.data === undefined) continue
 
@@ -104,7 +104,7 @@ const handleNonStreaming = async (options: HandlerOptions) => {
     ],
   }
 
-  for await (const message of options.response) {
+  for await (const message of options.stream) {
     if (message.data === undefined) continue
 
     const data = JSON.parse(message.data) as ChatCompletionChunk
@@ -133,20 +133,30 @@ completionRoutes.post("/", async (c) => {
       "x-vqd-4": state["x-vqd-4"],
     })
 
+    const xqvd4 = response.headers.get("x-vqd-4")
+    if (!xqvd4) {
+      consola.log("x-vqd-4 header not found", response.headers, response.stream)
+      throw new Error("x-vqd-4 header not found")
+    }
+    // This is meant to be run locally, by a single user
+    // So updating the state like this is fine
+    // eslint-disable-next-line require-atomic-updates
+    state["x-vqd-4"] = xqvd4
+
     consola.log("Received response:", response)
 
     if (payload.stream) {
       return await handleStreaming({
         c,
         payload: duckPayload,
-        response: response.response,
+        stream: response.stream,
       })
     }
 
     return await handleNonStreaming({
       c,
       payload: duckPayload,
-      response: response.response,
+      stream: response.stream,
     })
   } catch (error) {
     consola.error("Error occurred:", error)

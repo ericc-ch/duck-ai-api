@@ -19,12 +19,16 @@ export async function runServer(options: RunServerOptions): Promise<void> {
     consola.info("Verbose logging enabled")
   }
 
-  const { headers } = await getStatus()
+  const { headers, response } = await getStatus()
   const xqvd4 = headers.get("x-vqd-4")
 
-  if (!xqvd4) throw new Error("x-vqd-4 header not found")
+  if (!xqvd4) {
+    consola.log("x-vqd-4 header not found", headers, response)
+    throw new Error("x-vqd-4 header not found")
+  }
 
   state["x-vqd-4"] = xqvd4
+  consola.success("Fetched initial state", state)
 
   const serverUrl = `http://localhost:${options.port}`
   consola.box(`Server started at ${serverUrl}`)
